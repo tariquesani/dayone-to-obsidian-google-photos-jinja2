@@ -7,7 +7,8 @@ Convert a [Day One](https://dayoneapp.com/) JSON export into individual entries 
 * Supports various media types, including jpeg, png, mov, mp4, and so on (audio type is fixed to m4a due to lack of type information in JSON).
 * Easy configuration using YAML.
 * Displays locations on a map for the entire entry and individual photos, audios, and videos (requires [the map view plugin](https://github.com/esm7/obsidian-map-view)).
-* Datetime, weather and tags in frontmatter
+* Includes datetime, weather, and tags in the frontmatter.
+* Supports additional tags to display in Obsidian separate from other note tags. (default = From/DayOne)
 
 ## Example 
 ### Entry in Day One:
@@ -114,4 +115,4 @@ This script works with version 2023.13 (1490) of Day One. It has not been tested
    * Datetime
    * Tags
    * Weather
-* Tags can be prefixed (default = journal/) to show as subtags in Obsidian separate from other note tags
+* Tags can be prefixed (default = DayOne/) to show as subtags in Obsidian separate from other note tags
