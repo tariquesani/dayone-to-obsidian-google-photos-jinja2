@@ -1,17 +1,80 @@
 # dayone-to-obsidian
 Convert a [Day One](https://dayoneapp.com/) JSON export into individual entries for [Obsidian](https://obsidian.md). Each entry is created as a separate page. 
 
-> *This repository is no longer being monitored. The code remains available for the use of others, but no support will be given.*
+## Additional features
+* Supports importing videos, PDFs, audios, in addition to photos.
+* Allows adding metadata for media, such as photo creation date and location (if available).
+* Supports various media types, including jpeg, png, mov, mp4, and so on (audio type is fixed to m4a due to lack of type information in JSON).
+* Easy configuration using YAML.
+* Displays locations on a map for the entire entry and individual photos, audios, and videos (requires [the map view plugin](https://github.com/esm7/obsidian-map-view)).
+* Datetime, weather and tags in frontmatter
+
+## Example 
+### Entry in Day One:
+```markdown
+# Hello Obsidian
+This is an example entry with a lot of text and media.
+
+## Photo
+![[imagefile.jpeg]]
+
+## Audio
+![[audiofile.m4a]]
+
+## PDF
+![[PDFfile.pdf]]
+
+## Video
+![[videofile.mp4]]
+
+```
+### Entry after Conversion
+filename: Hello Obsidian 2018-01-02
+```markdown
+---
+date: 2018-01-02 18:58:49 Tuesday
+weather: City 13°C Mostly Cloudy
+tags: From/DayOne, DayOne/Audio
+locations: 
+---
+# Hello Obsidian
+This is an example entry with a lot of text and media.
+
+## Photo
+![[imagefile.jpeg]]
+Date: 2018-01-01T11:33:05Z
+Location: [Place, City, Country](geo:latitude,longitude)
+
+## Audio
+Duration: 00:01:48
+Date: 2018-01-01T15:24:17Z
+Recording Device: iPhone Microphone
+Location: [Place, City, Country](geo:latitude,longitude)
+![[audiofile.m4a]]
+
+## PDF
+Title: PDF title
+![[PDFfile.pdf]]
+
+## Video
+![[videofile.mp4]]
+Duration: 00:00:21
+Date: 2018-01-02T14:30:05Z
+Location: [Place, City, Country](geo:latitude,longitude)
+
+---
+[Place, City, Country](geo:latitude,longitude)
+
+```
 
 ## Requirements
 * Python 3
-* pytk (pip install pytk
 
 ## Optional requirements
 * Obsidian [Icons Plugin](https://github.com/visini/obsidian-icons-plugin) to display calendar marker at start of page heading
 
 ## Day One version
-This script works with version 5.9.1 (1250) of Day One. It has not been tested with any other versions.
+This script works with version 2023.13 (1490) of Day One. It has not been tested with any other versions.
 
 ## Setup
 
@@ -20,20 +83,35 @@ This script works with version 5.9.1 (1250) of Day One. It has not been tested w
 **This script renames files**
 1. Export your journal from [Day One in JSON format](https://help.dayoneapp.com/en/articles/440668-exporting-entries) 
 2. Expand that zip file
-3. Adjust the *root* variable to point to the location where your zip file was expanded and Journal.json exists. You should also have a photos folder here if there were photos in your journal
+3. Adjust the *ROOT* variable in config.yaml to point to the location where your zip file was expanded and Journal.json exists. You should also have several media folders here if there were photos audios etc in your journal. Additional settings can also be configured in `config.yaml`.
 4. If you **not** are using the [Icons Plugin](https://github.com/visini/obsidian-icons-plugin) to display calendar marker at start of page heading set *icons = False*
 5. Run the script
+   1. Change to the project directory:
+      ```
+      cd /path/to/dayone-to-obsidian
+      ```
+   2. Install the required dependencies:
+      ```shell
+      pip install -r requirements.txt
+      ```
+      This command will install the necessary packages listed in the `requirements.txt` file. Alternatively, you can use:
+      ```shell
+      python3 -m pip install -r requirements.txt
+      ```
+   3. Run the `splitfile.py` script:
+      ```shell
+      python splitfile.py
+      ```
 6. Check results in Obsidian
-7. If happy, move all the *journal* and *photos* folders to whatever vault you want them in.
+7. If happy, move all the *journal* and *media* folders to whatever vault you want them in.
 
 ## Features
 * Processes all entries, including any blank ones you may have.
 * Entries organised by year/month/day
 * If multiple entries on a day, each additional entry is treated seperately
-* Adds metadata for whatever exists at bottom of file
-   * minimum date and timezone
-   * Location as text, linked to a page
-   * Tags and starred flag as tag
-* Every entry has the date inserted in the text for easier reading (with a calendar icon to help you quickly distinguish from other entries in your vault)
-* If location is specified, it is given under the date, linked to Google Search
+* Adds metadata for whatever exists
+   * Location 
+   * Datetime
+   * Tags
+   * Weather
 * Tags can be prefixed (default = journal/) to show as subtags in Obsidian separate from other note tags
