@@ -1,6 +1,6 @@
 import logging
 import sys
-
+import traceback
 import dateutil.parser
 import pytz  # pip install pytz
 import os
@@ -163,6 +163,7 @@ with open(fn, encoding='utf-8') as json_file:
 
         except Exception as e:
             logging.error(f"Exception: {e}")
+            logging.error(traceback.format_exc())
             pass
 
         ## Start Metadata section
