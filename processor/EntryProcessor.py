@@ -124,7 +124,7 @@ class EntryProcessor:
         entry_title = re.sub(r"^#+\s*", "", entry_title.strip())
 
         # Replace disallowed characters with spaces
-        filename = re.sub(r'[\\/:\*\?"<>|]', ' ', entry_title)
+        filename = re.sub(r'[\\/:\*\?"<>|#^\[\]]', ' ', entry_title).strip()
 
         # filename max length
         return filename[:30]
