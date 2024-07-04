@@ -1,4 +1,4 @@
-# dayone-to-obsidian
+# dayone-to-obsidian-Google-Photos
 Convert a [Day One](https://dayoneapp.com/) JSON export into individual entries for [Obsidian](https://obsidian.md) with the [Google Photos plugin](https://forum.obsidian.md/t/google-photos-integration-for-obsidian/51062) installed. Each entry is created as a separate page. 
 
 ## Additional features from [@LucyDYu](https://github.com/LucyDYu/dayone-to-obsidian)
@@ -34,6 +34,7 @@ This is an example entry with a lot of text and media.
 
 ```
 ### Running the script, prompting the user to confirm matching Google Photos uploads
+![dayone-to-obsidian8](https://github.com/ezratock/dayone-to-obsidian-Google-Photos/assets/41342771/4c06c125-eaeb-461e-8638-dd5ecfc7b6fc)
 
 ### Entry after Conversion
 filename: Hello Obsidian 2018-01-02
