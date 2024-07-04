@@ -89,9 +89,11 @@ This script works with version 2024.13 of Day One. It has not been tested with a
 2. Expand that zip file
 3. Adjust the *ROOT* variable in `config.yaml` to point to the location where your zip file was expanded and Journal.json exists. You should also have several media folders here if there were photos audios etc in your journal. Additional settings can also be configured in `config.yaml`.
 4. Adjust the *GOOGLE_PHOTOS_CREDS* variable in `config.yaml` to point to the location of your Google Photos API Credentials JSON as shown below.
-   1. blah
-   2. blah
-   3. blah
+   1. In your Google Cloud Console, click `Photos Library API` (which should already show up if you followed the [instructions](https://github.com/alangrainger/obsidian-google-photos/blob/main/docs/Setup.md) to install the Google Photos plugin in Obsidian)
+   2. Click `CREDENTIALS` > `CREATE CREDENTIALS` > `OAuth client ID` ![dayone-to-obsidian4](https://github.com/ezratock/dayone-to-obsidian-Google-Photos/assets/41342771/1cc832be-5a5f-430c-b380-5c255528a588)
+   3. Choose `Desktop app` and click `CREATE` ![dayone-to-obsidian5](https://github.com/ezratock/dayone-to-obsidian-Google-Photos/assets/41342771/1599a723-299e-4706-ac34-e6eca7642f58)
+   4. Click `DOWNLOAD JSON` ![dayone-to-obsidian6](https://github.com/ezratock/dayone-to-obsidian-Google-Photos/assets/41342771/786abd33-7877-4fde-840c-8481e008101e)
+   5. Adjust the *GOOGLE_PHOTOS_CREDS* variable in `config.yaml` to point to that JSON file. It makes sense to save your credentials JSON in the secrets/ directory because it is already added to .gitignore
 5. If you **not** are using the [Icons Plugin](https://github.com/visini/obsidian-icons-plugin) to display calendar marker at start of page heading set *icons = False*
 6. Run the script
    1. Change to the project directory:
