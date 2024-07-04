@@ -33,7 +33,7 @@ This is an example entry with a lot of text and media.
 ![[videofile.mp4]]
 
 ```
-### Run the script: prompting the user to confirm matching Google Photos uploads
+### Run the script: prompting the user to confirm matching photos and videos in Google Photos
 ![dayone-to-obsidian8](https://github.com/ezratock/dayone-to-obsidian-Google-Photos/assets/41342771/4c06c125-eaeb-461e-8638-dd5ecfc7b6fc)
 
 ### Entry after Conversion
