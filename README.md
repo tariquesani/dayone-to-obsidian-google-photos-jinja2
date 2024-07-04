@@ -99,7 +99,7 @@ This script works with version 2024.13 of Day One. It has not been tested with a
    6. Click `DOWNLOAD JSON`
 
       ![dayone-to-obsidian6](https://github.com/ezratock/dayone-to-obsidian-Google-Photos/assets/41342771/786abd33-7877-4fde-840c-8481e008101e)
-   8. Adjust the *GOOGLE_PHOTOS_CREDS* variable in `config.yaml` to point to that JSON file. It makes sense to save your credentials JSON in the secrets/ directory because it is already added to .gitignore
+   8. Adjust the *GOOGLE_PHOTOS_CREDS* variable in `config.yaml` to point to that JSON file. It makes sense to save your credentials JSON in the secrets/ directory because then it will already be added to .gitignore
 5. If you **not** are using the [Icons Plugin](https://github.com/visini/obsidian-icons-plugin) to display calendar marker at start of page heading set *icons = False*
 6. Run the script
    1. Change to the project directory:
