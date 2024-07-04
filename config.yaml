@@ -1,18 +1,16 @@
 
-# Set this as the location where your Journal.json file is located
+# Set this as the location where your Journal.json file(s) are located
 # Use single quotes to preserve the path as is
 # The path can contain spaces
 ROOT: '/path/to/day one journals'
 
 # name of folder where journal entries will end up
 JOURNAL_FOLDER: "Journal"
-JOURNAL_JSON: "Journal.json"
 
 # All fields below are optional. Set them to "" or remove them if not needed.
 
 # Use first line (title) from entry text as the filename,
 # If there is no text or only media, use the default filename
-# Filename format: "title YYYY-MM-DD"
 DEFAULT_FILENAME: Day One
 
 # If there is no text at all, use the default text for the entry
@@ -23,10 +21,13 @@ DEFAULT_TEXT: "Empty day one entry. Keep it for record.\n"
 # If you change DayOne to something else, make sure you keep the trailing /
 TAG_PREFIX: "DayOne/"
 
-# I like to keep this tag in addition to other tags from entries
-# To exclude just remove it
-ADDITIONAL_TAGS:
-  - "From/DayOne"
+# Set this to the location of your Google Photos credentials JSON (see
+# README). The recommended location is in the secrets/ directory since
+# it's already added to the .gitignore
+GOOGLE_PHOTOS_CREDS: "/path/to/secrets/google photos credentials.json"
 
-
+# When the program searches your Google Photos for files matching the
+# DayOne export, this will determine how many days plus or minus the
+# journal's date to search
+GOOGLE_PHOTOS_SEARCH_WINDOW: 3
 

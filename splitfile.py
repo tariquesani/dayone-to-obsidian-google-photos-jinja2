@@ -16,7 +16,6 @@ from processor.PhotoEntryProcessor import PhotoEntryProcessor
 from processor.VideoEntryProcessor import VideoEntryProcessor
 from config.config import Config
 
-
 def rename_media(root, subpath, media_entry, filetype):
     pfn = os.path.join(root, subpath, '%s.%s' % (media_entry['md5'], filetype))
     if os.path.isfile(pfn):
@@ -25,9 +24,8 @@ def rename_media(root, subpath, media_entry, filetype):
         os.rename(pfn, newfn)
 
 
-# Load the configuration
-Config.load_config("config.yaml")
 DEFAULT_TEXT = Config.get("DEFAULT_TEXT", "")
+GOOGLE_PHOTOS_CREDS = Config.get("GOOGLE_PHOTOS_CREDS")
 
 # Initialize the EntryProcessor class variables
 EntryProcessor.initialize()
@@ -37,19 +35,19 @@ root = Config.get("ROOT")
 icons = False  # Set to true if you are using the Icons Plugin in Obsidian
 
 # name of folder where journal entries will end up
-journalFolder = os.path.join(root, Config.get("JOURNAL_FOLDER"))
-fn = os.path.join(root, Config.get("JOURNAL_JSON"))
+rootJournalFolder = Config.get("JOURNAL_FOLDER")
+# fn = os.path.join(root, Config.get("JOURNAL_JSON"))
 
 # Clean out existing journal folder, otherwise each run creates new files
-if os.path.isdir(journalFolder):
-    print("Deleting existing folder: %s" % journalFolder)
-    shutil.rmtree(journalFolder)
+if os.path.isdir(rootJournalFolder):
+    print("Deleting existing folder: %s" % rootJournalFolder)
+    shutil.rmtree(rootJournalFolder)
 # Give time for folder deletion to complete. Only a problem if you have the folder open when trying to run the script
 time.sleep(2)
 
-if not os.path.isdir(journalFolder):
-    print("Creating journal folder: %s" % journalFolder)
-    os.mkdir(journalFolder)
+if not os.path.isdir(rootJournalFolder):
+    print("Creating root journal folder: %s" % rootJournalFolder)
+    os.mkdir(rootJournalFolder)
 
 if icons:
     print("Icons are on")
@@ -58,158 +56,181 @@ else:
     print("Icons are off")
     dateIcon = ""  # make 2nd level heading
 
+dayOneJournals = [x for x in os.listdir(root) if x.endswith(".json")]
+
 print("Begin processing entries")
-count = 0
-with open(fn, encoding='utf-8') as json_file:
-    data = json.load(json_file)
 
-    photo_processor = PhotoEntryProcessor()
-    audio_processor = AudioEntryProcessor()
-    video_processor = VideoEntryProcessor()
-    pdf_processor = PdfEntryProcessor()
+for journalIndex in dayOneJournals:
+    journalFolder = os.path.join(rootJournalFolder, journalIndex.replace(".json", ""))
+    dash = "\n========================================"
+    print(dash + "\nBegin processing " + journalIndex + dash)
+    if os.path.isdir(journalFolder):
+        print("journalFolder already exists...")
+        import pdb
 
-    for entry in data['entries']:
-        newEntry = []
+        pdb.set_trace()
+    os.mkdir(journalFolder)
 
-        createDate = dateutil.parser.isoparse(entry['creationDate'])
-        localDate = createDate.astimezone(
-            pytz.timezone(entry['timeZone']))  # It's natural to use our local date/time as reference point, not UTC
+    count = 0
+    with open(os.path.join(root, journalIndex), encoding='utf-8') as json_file:
+        data = json.load(json_file)
 
-        # Format the date and time with the weekday
-        formatted_datetime = createDate.strftime("%Y-%m-%d %H:%M:%S %A")
+        photo_processor = PhotoEntryProcessor(os.path.join(root, "photos"))
+        audio_processor = AudioEntryProcessor()
+        video_processor = VideoEntryProcessor(os.path.join(root, "videos"))
+        pdf_processor = PdfEntryProcessor()
 
-        dateCreated = formatted_datetime
-        coordinates = ''
+        for entry in data['entries']:
+            newEntry = []
 
-        frontmatter = f"---\n" \
-                      f"date: {dateCreated}\n"
+            createDate = dateutil.parser.isoparse(entry['creationDate'])
+            localDate = createDate.astimezone(
+                pytz.timezone(entry['timeZone']))  # It's natural to use our local date/time as reference point, not UTC
 
-        weather = EntryProcessor.get_weather(entry)
-        if len(weather) > 0:
-            frontmatter += f"weather: {weather}\n"
-        tags = EntryProcessor.get_tags(entry)
-        if len(tags) > 0:
-            frontmatter += f"tags: {tags}\n"
+            # Format the date and time with the weekday
+            formatted_datetime = createDate.isoformat() + 'Z'
 
-        if 'location' in entry:
-            coordinates = EntryProcessor.get_coordinates(entry)
+            dateCreated = formatted_datetime
+            coordinates = ''
 
-        frontmatter += "locations: \n"
-        frontmatter += "---\n"
+            frontmatter = f"---\n" \
+                          f"date: {dateCreated}\n"
 
-        newEntry.append(frontmatter)
+            weather = EntryProcessor.get_weather(entry)
+            if len(weather) > 0:
+                frontmatter += f"weather: {weather}\n"
+            tags = EntryProcessor.get_tags(entry)
+            if len(tags) > 0:
+                frontmatter += f"tags: {tags}\n"
 
-        # If you want time as entry title, uncomment below.
-        # Add date as page header, removing time if it's 12 midday as time obviously not read
-        # if sys.platform == "win32":
-        #     newEntry.append(
-        #         '## %s%s\n' % (dateIcon, localDate.strftime("%A, %#d %B %Y at %#I:%M %p").replace(" at 12:00 PM", "")))
-        # else:
-        # newEntry.append('## %s%s\n' % (
-        #     dateIcon, localDate.strftime("%A, %-d %B %Y at %-I:%M %p").replace(" at 12:00 PM", "")))  # untested
+            frontmatter += "---\n"
 
-        # Add body text if it exists (can have the odd blank entry), after some tidying up
-        try:
-            if 'text' in entry:
-                newText = entry['text'].replace("\\", "")
-            else:
-                newText = DEFAULT_TEXT
-            newText = newText.replace("\u2028", "\n")
-            newText = newText.replace("\u1C6A", "\n\n")
+            newEntry.append(frontmatter)
 
-            if 'photos' in entry:
-                # Correct photo links. First we need to rename them. The filename is the md5 code, not the identifier
-                # subsequently used in the text. Then we can amend the text to match. Will only to rename on first run
-                # through as then, they are all renamed.
-                # Assuming all jpeg extensions.
-                photo_list = entry['photos']
-                for p in photo_list:
-                    photo_processor.add_entry_to_dict(p)
-                    rename_media(root, 'photos', p, p['type'])
+            # If you want time as entry title, uncomment below.
+            # Add date as page header, removing time if it's 12 midday as time obviously not read
+            # if sys.platform == "win32":
+            #     newEntry.append(
+            #         '## %s%s\n' % (dateIcon, localDate.strftime("%A, %#d %B %Y at %#I:%M %p").replace(" at 12:00 PM", "")))
+            # else:
+            # newEntry.append('## %s%s\n' % (
+            #     dateIcon, localDate.strftime("%A, %-d %B %Y at %-I:%M %p").replace(" at 12:00 PM", "")))  # untested
 
-                # Now to replace the text to point to the file in obsidian
-                newText = re.sub(r"(\!\[\]\(dayone-moment:\/\/)([A-F0-9]+)(\))",
-                                 photo_processor.replace_entry_id_with_info,
-                                 newText)
+            # Add body text if it exists (can have the odd blank entry), after some tidying up
+            title = EntryProcessor.get_title(entry)
 
-            if 'audios' in entry:
-                audio_list = entry['audios']
-                for p in audio_list:
-                    audio_processor.add_entry_to_dict(p)
-                    rename_media(root, 'audios', p, "m4a")
+            print("Processing entry: " + title)
 
-                newText = re.sub(r"(\!\[\]\(dayone-moment:\/audio\/)([A-F0-9]+)(\))",
-                                 audio_processor.replace_entry_id_with_info, newText)
+            try:
+                if 'text' in entry:
+                    newText = entry['text'].replace("\\", "")
+                else:
+                    newText = DEFAULT_TEXT
 
-            if 'pdfAttachments' in entry:
-                pdf_list = entry['pdfAttachments']
-                for p in pdf_list:
-                    pdf_processor.add_entry_to_dict(p)
-                    rename_media(root, 'pdfs', p, p['type'])
+                newText = newText.replace("\u2028", "\n")
+                newText = newText.replace("\u1C6A", "\n\n")
+                special_chars = ["<", ">", "|", "="]
+                for special_char in special_chars:
+                    newText = newText.replace(special_char, "\\" + special_char)
 
-                newText = re.sub(r"(\!\[\]\(dayone-moment:\/pdfAttachment\/)([A-F0-9]+)(\))",
-                                 pdf_processor.replace_entry_id_with_info, newText)
+                if 'photos' in entry:
+                    # Correct photo links. First we need to rename them. The filename is the md5 code, not the identifier
+                    # subsequently used in the text. Then we can amend the text to match. Will only to rename on first run
+                    # through as then, they are all renamed.
+                    # Assuming all jpeg extensions.
+                    photo_list = entry['photos']
+                    for p in photo_list:
+                        photo_processor.add_entry_to_dict(p)
+                        rename_media(root, 'photos', p, p['type'])
 
-            if 'videos' in entry:
-                video_list = entry['videos']
-                for p in video_list:
-                    video_processor.add_entry_to_dict(p)
-                    rename_media(root, 'videos', p, p['type'])
+                    photo_processor.set_GPhotos_title(title)
 
-                newText = re.sub(r"(\!\[\]\(dayone-moment:\/video\/)([A-F0-9]+)(\))",
-                                 video_processor.replace_entry_id_with_info, newText)
+                    # Now to replace the text to point to the file in obsidian
+                    newText = re.sub(r"(\!\[\]\(dayone-moment:\/\/)([A-F0-9]+)(\))",
+                                     photo_processor.replace_entry_id_with_info,
+                                     newText)
 
-            newEntry.append(newText)
+                if 'audios' in entry:
+                    audio_list = entry['audios']
+                    for p in audio_list:
+                        audio_processor.add_entry_to_dict(p)
+                        rename_media(root, 'audios', p, "m4a")
 
-        except Exception as e:
-            logging.error(f"Exception: {e}")
-            logging.error(traceback.format_exc())
-            pass
+                    newText = re.sub(r"(\!\[\]\(dayone-moment:\/audio\/)([A-F0-9]+)(\))",
+                                     audio_processor.replace_entry_id_with_info, newText)
 
-        ## Start Metadata section
+                if 'pdfAttachments' in entry:
+                    pdf_list = entry['pdfAttachments']
+                    for p in pdf_list:
+                        pdf_processor.add_entry_to_dict(p)
+                        rename_media(root, 'pdfs', p, p['type'])
 
-        newEntry.append('\n\n---\n')
+                    newText = re.sub(r"(\!\[\]\(dayone-moment:\/pdfAttachment\/)([A-F0-9]+)(\))",
+                                     pdf_processor.replace_entry_id_with_info, newText)
 
-        # Add location
-        location = EntryProcessor.get_location_coordinate(entry)
-        if not location == '':
-            newEntry.append(location)
+                if 'videos' in entry:
+                    video_list = entry['videos']
+                    for p in video_list:
+                        video_processor.add_entry_to_dict(p)
+                        rename_media(root, 'videos', p, p['type'])
 
-        # Add GPS, not all entries have this
-        # try:
-        #     newEntry.append( '- GPS: [%s, %s](https://www.google.com/maps/search/?api=1&query=%s,%s)\n' % ( entry['location']['latitude'], entry['location']['longitude'], entry['location']['latitude'], entry['location']['longitude'] ) )
-        # except KeyError:
-        #     pass
+                    video_processor.set_GPhotos_title(title)
 
-        # Save entries organised by year, year-month, year-month-day.md
-        yearDir = os.path.join(journalFolder, str(createDate.year))
-        monthDir = os.path.join(yearDir, createDate.strftime('%Y-%m'))
+                    newText = re.sub(r"(\!\[\]\(dayone-moment:\/video\/)([A-F0-9]+)(\))",
+                                     video_processor.replace_entry_id_with_info, newText)
 
-        if not os.path.isdir(yearDir):
-            os.mkdir(yearDir)
+                newEntry.append(newText)
 
-        if not os.path.isdir(monthDir):
-            os.mkdir(monthDir)
+            except Exception as e:
+                logging.error(f"Exception: {e}")
+                logging.error(traceback.format_exc())
+                pass
 
-        title = EntryProcessor.get_title(entry)
+            ## Start Metadata section
 
-        # Filename format: "title localDate"
-        # Target filename to save to. Will be modified if already exists
-        fnNew = os.path.join(monthDir, "%s %s.md" % (title, localDate.strftime('%Y-%m-%d')))
+            newEntry.append('\n\n---\n')
 
-        # Here is where we handle multiple entries on the same day. Each goes to it's own file
-        if os.path.isfile(fnNew):
-            # File exists, need to find the next in sequence and append alpha character marker
-            index = 97  # ASCII a
-            fnNew = os.path.join(monthDir, "%s %s %s.md" % (title, localDate.strftime('%Y-%m-%d'), chr(index)))
-            while os.path.isfile(fnNew):
-                index += 1
-                fnNew = os.path.join(monthDir, "%s %s %s.md" % (title, localDate.strftime('%Y-%m-%d'), chr(index)))
+            # Add location
+            location = EntryProcessor.get_location_coordinate(entry)
+            if not location == '':
+                newEntry.append(location)
 
-        with open(fnNew, 'w', encoding='utf-8') as f:
-            for line in newEntry:
-                f.write(line)
+            # Add GPS, not all entries have this
+            # try:
+            #     newEntry.append( '- GPS: [%s, %s](https://www.google.com/maps/search/?api=1&query=%s,%s)\n' % ( entry['location']['latitude'], entry['location']['longitude'], entry['location']['latitude'], entry['location']['longitude'] ) )
+            # except KeyError:
+            #     pass
 
-        count += 1
+            # Save entries organised by year, year-month, year-month-day.md
+            # yearDir = os.path.join(journalFolder, str(createDate.year))
+            # monthDir = os.path.join(yearDir, createDate.strftime('%Y-%m'))
+            #
+            # if not os.path.isdir(yearDir):
+            #     os.mkdir(yearDir)
+            #
+            # if not os.path.isdir(monthDir):
+            #     os.mkdir(monthDir)
 
-print("Complete: %d entries processed." % count)
+            # title = EntryProcessor.get_title(entry)
+
+            # Filename format: "title localDate"
+            # Target filename to save to. Will be modified if already exists
+            fnNew = os.path.join(journalFolder, "%s.md" % title)
+
+            # Here is where we handle multiple entries on the same day. Each goes to it's own file
+            if os.path.isfile(fnNew):
+                # File exists, need to find the next in sequence and append alpha character marker
+                index = 97  # ASCII a
+                fnNew = os.path.join(journalFolder, "%s %s.md" % (title, chr(index)))
+                while os.path.isfile(fnNew):
+                    index += 1
+                    fnNew = os.path.join(journalFolder, "%s %s.md" % (title, chr(index)))
+
+            with open(fnNew, 'w', encoding='utf-8') as f:
+                for line in newEntry:
+                    f.write(line)
+
+            count += 1
+    print("Journal %s complete. %d entries processed." % (journalIndex, count))
+
+print("\nComplete. %d journals processed." % len(dayOneJournals))

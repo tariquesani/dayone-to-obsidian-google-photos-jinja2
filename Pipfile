@@ -1,0 +1,21 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+python-dateutil = "==2.8.2"
+pytz = "==2023.3"
+pyyaml = "==6.0.1"
+google-auth = "*"
+google-auth-oauthlib = "*"
+google-auth-httplib2 = "*"
+google-api-python-client = "*"
+pandas = "*"
+pillow = "*"
+moviepy = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.12"
