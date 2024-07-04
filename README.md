@@ -13,6 +13,7 @@ Convert a [Day One](https://dayoneapp.com/) JSON export into individual entries 
 ## Additional features from me
 * Photos and videos will be uploaded to Google Photos, and just the external link will be kept in your notes as per the Google Photos plugin.
 * If a photo or video already in Google Photos seems to match the DayOne export, the script prompts the user to confirm the match instead of reuploading the file
+* Supports multiple DayOne journals
 
 ## Example 
 ### Entry in Day One:
@@ -123,7 +124,6 @@ This script works with version 2024.13 of Day One. It has not been tested with a
 
 ## Features
 * Processes all entries, including any blank ones you may have.
-* Entries organised by year/month/day
 * If multiple entries on a day, each additional entry is treated seperately
 * Adds metadata for whatever exists
    * Location 
@@ -131,3 +131,4 @@ This script works with version 2024.13 of Day One. It has not been tested with a
    * Tags
    * Weather
 * Tags can be prefixed (default = DayOne/) to show as subtags in Obsidian separate from other note tags
+* Photos and videos inserted as Google Photos links
