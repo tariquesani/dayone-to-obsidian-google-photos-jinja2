@@ -1,7 +1,7 @@
 # dayone-to-obsidian
-Convert a [Day One](https://dayoneapp.com/) JSON export into individual entries for [Obsidian](https://obsidian.md). Each entry is created as a separate page. 
+Convert a [Day One](https://dayoneapp.com/) JSON export into individual entries for [Obsidian](https://obsidian.md) with the [Google Photos plugin](https://forum.obsidian.md/t/google-photos-integration-for-obsidian/51062) installed. Each entry is created as a separate page. 
 
-## Additional features
+## Additional features from [@LucyDYu](https://github.com/LucyDYu/dayone-to-obsidian)
 * Supports importing videos, PDFs, audios, in addition to photos.
 * Allows adding metadata for media, such as photo creation date and location (if available).
 * Supports various media types, including jpeg, png, mov, mp4, and so on (audio type is fixed to m4a due to lack of type information in JSON).
@@ -9,6 +9,10 @@ Convert a [Day One](https://dayoneapp.com/) JSON export into individual entries 
 * Displays locations on a map for the entire entry and individual photos, audios, and videos (requires [the map view plugin](https://github.com/esm7/obsidian-map-view)).
 * Includes datetime, weather, and tags in the frontmatter.
 * Supports additional tags to display in Obsidian separate from other note tags. (default = From/DayOne)
+
+## Additional features from me
+* Photos and videos will be uploaded to Google Photos, and just the external link will be kept in your notes as per the Google Photos plugin.
+* If a photo or video already in Google Photos seems to match the DayOne export, the script prompts the user to confirm the match instead of reuploading the file
 
 ## Example 
 ### Entry in Day One:
@@ -29,6 +33,8 @@ This is an example entry with a lot of text and media.
 ![[videofile.mp4]]
 
 ```
+### Running the script, prompting the user to confirm matching Google Photos uploads
+
 ### Entry after Conversion
 filename: Hello Obsidian 2018-01-02
 ```markdown
@@ -42,9 +48,7 @@ locations:
 This is an example entry with a lot of text and media.
 
 ## Photo
-![[imagefile.jpeg]]
-Date: 2018-01-01T11:33:05Z
-Location: [Place, City, Country](geo:latitude,longitude)
+[![](imagethumbnail.jpeg)](https://photos.google.com/image_in_Google_Photos)
 
 ## Audio
 Duration: 00:01:48
@@ -58,10 +62,8 @@ Title: PDF title
 ![[PDFfile.pdf]]
 
 ## Video
-![[videofile.mp4]]
+[![](thumbnails/videothumbnail.jpeg)](https://photos.google.com/video_in_Google_Photos)
 Duration: 00:00:21
-Date: 2018-01-02T14:30:05Z
-Location: [Place, City, Country](geo:latitude,longitude)
 
 ---
 [Place, City, Country](geo:latitude,longitude)
@@ -75,18 +77,22 @@ Location: [Place, City, Country](geo:latitude,longitude)
 * Obsidian [Icons Plugin](https://github.com/visini/obsidian-icons-plugin) to display calendar marker at start of page heading
 
 ## Day One version
-This script works with version 2023.13 (1490) of Day One. It has not been tested with any other versions.
+This script works with version 2024.13 of Day One. It has not been tested with any other versions.
 
 ## Setup
 
 **DO NOT do this in your current vault. Create a new vault for the purpose of testing. You are responsible for ensuring against data loss**
-**This script deletes folders if run a second time**
+**This script deletes folders if run a second time** (however, choices that the user inputs are saved to the `secrets` directory. This means the script can be stopped midway through and picked back up at any time.)
 **This script renames files**
 1. Export your journal from [Day One in JSON format](https://help.dayoneapp.com/en/articles/440668-exporting-entries) 
 2. Expand that zip file
-3. Adjust the *ROOT* variable in config.yaml to point to the location where your zip file was expanded and Journal.json exists. You should also have several media folders here if there were photos audios etc in your journal. Additional settings can also be configured in `config.yaml`.
-4. If you **not** are using the [Icons Plugin](https://github.com/visini/obsidian-icons-plugin) to display calendar marker at start of page heading set *icons = False*
-5. Run the script
+3. Adjust the *ROOT* variable in `config.yaml` to point to the location where your zip file was expanded and Journal.json exists. You should also have several media folders here if there were photos audios etc in your journal. Additional settings can also be configured in `config.yaml`.
+4. Adjust the *GOOGLE_PHOTOS_CREDS* variable in `config.yaml` to point to the location of your Google Photos API Credentials JSON as shown below.
+   1. blah
+   2. blah
+   3. blah
+5. If you **not** are using the [Icons Plugin](https://github.com/visini/obsidian-icons-plugin) to display calendar marker at start of page heading set *icons = False*
+6. Run the script
    1. Change to the project directory:
       ```
       cd /path/to/dayone-to-obsidian
@@ -103,8 +109,8 @@ This script works with version 2023.13 (1490) of Day One. It has not been tested
       ```shell
       python splitfile.py
       ```
-6. Check results in Obsidian
-7. If happy, move all the *journal* and *media* folders to whatever vault you want them in.
+7. Check results in Obsidian
+8. If happy, move all the *journal* and *media* folders to whatever vault you want them in.
 
 ## Features
 * Processes all entries, including any blank ones you may have.
