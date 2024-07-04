@@ -38,7 +38,7 @@ This is an example entry with a lot of text and media.
 ![dayone-to-obsidian8](https://github.com/ezratock/dayone-to-obsidian-Google-Photos/assets/41342771/4c06c125-eaeb-461e-8638-dd5ecfc7b6fc)
 
 ### Entry after Conversion
-filename: Hello Obsidian 2018-01-02
+filename: Hello Obsidian
 ```markdown
 ---
 date: 2018-01-02 18:58:49 Tuesday
