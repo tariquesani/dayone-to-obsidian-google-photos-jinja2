@@ -13,7 +13,8 @@ Convert a [Day One](https://dayoneapp.com/) JSON export into individual entries 
 ## Additional features from me
 * Photos and videos will be uploaded to Google Photos, and just the external link will be kept in your notes as per the Google Photos plugin.
 * If a photo or video already in Google Photos seems to match the DayOne export, the script prompts the user to confirm the match instead of reuploading the file
-* Supports multiple DayOne journals
+* Supports multiple DayOne journals (DayOne Premium)
+* Allows renaming untitled DayOne entries with user input
 
 ## Example 
 ### Entry in Day One:
