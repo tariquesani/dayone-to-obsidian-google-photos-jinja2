@@ -87,7 +87,7 @@ This script works with version 2024.13 of Day One. It has not been tested with a
 **DO NOT do this in your current vault. Create a new vault for the purpose of testing. You are responsible for ensuring against data loss.**
 **This script deletes folders if run a second time** (however, choices that the user inputs are saved to the `secrets` directory. This means the script can be stopped midway through and picked back up at any time).
 **This script renames files.**
-**This script resizes images in the DayOne export (to max 400x400 by default)**
+**This script resizes images in the DayOne export (to max 400x400 by default).**
 1. Export your journal from [Day One in JSON format](https://help.dayoneapp.com/en/articles/440668-exporting-entries) 
 2. Expand that zip file
 3. Adjust the *ROOT* variable in `config.yaml` to point to the location where your zip file was expanded and Journal.json exists. You should also have several media folders here if there were photos audios etc in your journal. Additional settings can also be configured in `config.yaml`.
