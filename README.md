@@ -87,6 +87,7 @@ This script works with version 2024.13 of Day One. It has not been tested with a
 **DO NOT do this in your current vault. Create a new vault for the purpose of testing. You are responsible for ensuring against data loss**
 **This script deletes folders if run a second time** (however, choices that the user inputs are saved to the `secrets` directory. This means the script can be stopped midway through and picked back up at any time.)
 **This script renames files**
+**This script resizes images in the DayOne export (to 400x400 by default)**
 1. Export your journal from [Day One in JSON format](https://help.dayoneapp.com/en/articles/440668-exporting-entries) 
 2. Expand that zip file
 3. Adjust the *ROOT* variable in `config.yaml` to point to the location where your zip file was expanded and Journal.json exists. You should also have several media folders here if there were photos audios etc in your journal. Additional settings can also be configured in `config.yaml`.
@@ -121,7 +122,7 @@ This script works with version 2024.13 of Day One. It has not been tested with a
       python splitfile.py
       ```
 7. Check results in Obsidian
-8. If happy, move all the *journal* and *media* folders to whatever vault you want them in.
+8. If happy, move the folders to whatever vault you want them in. The contents are stored across the outputted journal folders, the `photos`, `audios`, and `pdfs` folders in the root folder, and the `thumbnails` folder in the root/`videos` folder.
 
 ## Features
 * Processes all entries, including any blank ones you may have.
