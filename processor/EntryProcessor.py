@@ -42,6 +42,8 @@ def update_saved_uploads():
     with open(saved_uploads_path, 'w') as f:
         json.dump(saved_uploads, f)
 
+if not os.path.exists('secrets/'):
+    os.mkdir('secrets')
 
 if os.path.exists('secrets/savedToken.json'):
     creds = Credentials.from_authorized_user_file('secrets/savedToken.json', SCOPES)
