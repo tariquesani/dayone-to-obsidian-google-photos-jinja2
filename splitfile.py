@@ -226,6 +226,10 @@ for journalIndex in dayOneJournals:
                     index += 1
                     fnNew = os.path.join(journalFolder, "%s %s.md" % (title, chr(index)))
 
+            # Set created date and last modified date to entry's date
+            date_epoch = createDate.timestamp()
+            os.utime(fnNew, (date_epoch, date_epoch))
+
             with open(fnNew, 'w', encoding='utf-8') as f:
                 for line in newEntry:
                     f.write(line)
