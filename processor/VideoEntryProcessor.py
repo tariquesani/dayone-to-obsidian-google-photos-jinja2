@@ -19,6 +19,9 @@ class VideoEntryProcessor(EntryProcessor):
             clip = VideoFileClip(video_path)
             frame = clip.get_frame(0)
             result = Image.fromarray(frame)
+            # Checking if rotated video messed up aspect ratio
+            if hasattr(clip, 'rotation') and clip.rotation in [90, 270]:
+                result = result.resize((clip.h, clip.w), Image.Resampling.LANCZOS)
             result.thumbnail(max_size, Image.LANCZOS)
             thumbnails_folder = os.path.join(self.path, THUMBNAILS_FOLDER)
             if not os.path.isdir(thumbnails_folder):
@@ -67,6 +70,7 @@ class VideoEntryProcessor(EntryProcessor):
 
             local_thumbnail_link = self.generate_thumbnail(entry)
 
+        local_thumbnail_link = self.generate_thumbnail(entry)
         if local_thumbnail_link is None:
             local_thumbnail_link = "FILE NOT FOUND"
 
