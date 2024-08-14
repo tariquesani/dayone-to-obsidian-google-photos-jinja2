@@ -84,7 +84,7 @@ This script works with version 2024.13 of Day One. It has not been tested with a
 
 ## Setup
 
-**DO NOT do this in your current vault. Create a new vault for the purpose of testing. You are responsible for ensuring against data loss.**
+**DO NOT do this in your current vault. Create a new vault for testing. You are responsible for ensuring against data loss.**
 **This script deletes folders if run a second time** (however, choices that the user inputs are saved to the `secrets` directory. This means the script can be stopped midway through and picked back up at any time).
 **This script renames files.**
 **This script resizes images in the DayOne export (to max 400x400 by default).**
@@ -122,7 +122,7 @@ This script works with version 2024.13 of Day One. It has not been tested with a
       python splitfile.py
       ```
 7. Check results in Obsidian
-8. If happy, move the folders to whatever vault you want them in. The contents are stored across the outputted journal folders, the `photos`, `audios`, and `pdfs` folders in the root folder, and the `thumbnails` folder in the root/`videos` folder.
+8. If happy, move the folders to whatever vault you want them in.
 
 ## Features
 * Processes all entries, including any blank ones you may have.

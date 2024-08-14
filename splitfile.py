@@ -1,5 +1,4 @@
 import logging
-import sys
 import traceback
 import dateutil.parser
 import pytz  # pip install pytz
@@ -14,6 +13,7 @@ from processor.EntryProcessor import EntryProcessor
 from processor.PdfEntryProcessor import PdfEntryProcessor
 from processor.PhotoEntryProcessor import PhotoEntryProcessor
 from processor.VideoEntryProcessor import VideoEntryProcessor
+from processor.VideoEntryProcessor import THUMBNAILS_FOLDER
 from config.config import Config
 
 def rename_media(root, subpath, media_entry, filetype):
@@ -93,8 +93,9 @@ for journalIndex in dayOneJournals:
             dateCreated = formatted_datetime
             coordinates = ''
 
-            frontmatter = f"---\n" \
-                          f"date: {dateCreated}\n"
+            # Commenting out date in the frontmatter, because it can be found in the file created/last modified time
+            frontmatter = f"---\n" #\
+                          # f"date: {dateCreated}\n"
 
             weather = EntryProcessor.get_weather(entry)
             if len(weather) > 0:
@@ -105,7 +106,8 @@ for journalIndex in dayOneJournals:
 
             frontmatter += "---\n"
 
-            newEntry.append(frontmatter)
+            if frontmatter != "---\n---\n":
+                newEntry.append(frontmatter)
 
             # If you want time as entry title, uncomment below.
             # Add date as page header, removing time if it's 12 midday as time obviously not read
@@ -226,15 +228,27 @@ for journalIndex in dayOneJournals:
                     index += 1
                     fnNew = os.path.join(journalFolder, "%s %s.md" % (title, chr(index)))
 
-            # Set created date and last modified date to entry's date
-            date_epoch = createDate.timestamp()
-            os.utime(fnNew, (date_epoch, date_epoch))
-
             with open(fnNew, 'w', encoding='utf-8') as f:
                 for line in newEntry:
                     f.write(line)
 
+            # Set created date and last modified date to entry's date
+            if (os.path.exists(fnNew)):
+                date_epoch = createDate.timestamp()
+                os.utime(fnNew, (date_epoch, date_epoch))
+            else:
+                print("Write to file failed.")
+
             count += 1
     print("Journal %s complete. %d entries processed." % (journalIndex, count))
+
+print("\n")
+for media_type in [os.path.join("videos", THUMBNAILS_FOLDER), "photos", "pdfs", "audios"]:
+    media_folder_path = os.path.join(root, media_type)
+    if os.path.exists(media_folder_path):
+        print("Copying %s to %s" % (media_type, rootJournalFolder))
+        shutil.copytree(media_folder_path, os.path.join(rootJournalFolder, media_type))
+    else:
+        print("%s folder does not exist" % media_type.capitalize())
 
 print("\nComplete. %d journals processed." % len(dayOneJournals))
