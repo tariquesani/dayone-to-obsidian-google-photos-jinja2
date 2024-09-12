@@ -12,7 +12,7 @@ from config.config import Config
 
 creds = None
 SCOPES = ['https://www.googleapis.com/auth/photoslibrary']
-MAX_SIZE = (400, 400)
+MAX_SIZE = (800, 1200)
 
 # Load the configuration
 Config.load_config("config.yaml")
