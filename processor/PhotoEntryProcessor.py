@@ -9,8 +9,7 @@ class PhotoEntryProcessor(EntryProcessor):
     def __init__(self, path):
         self.path = path
         super().__init__()
-
-
+        
     def resize_image(self, p, max_size=MAX_SIZE):
         input_path = os.path.join(self.path, '%s.%s' % (p['identifier'], p["type"]))
         # Save images organised by year, year-month
@@ -69,7 +68,7 @@ class PhotoEntryProcessor(EntryProcessor):
         self.resize_image(entry)
         local_thumbnail_link = "%s.%s" % (identifier, photo_type)
 
-        photo_basic_info = f"[![]({local_thumbnail_link})]({correct_photo_url})"
+        photo_basic_info = f"[![[{local_thumbnail_link}]]]({correct_photo_url})"
 
         # If you only need embeddings of media and not any additional info,
         # you can remove the following section.
