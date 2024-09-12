@@ -13,13 +13,27 @@ class PhotoEntryProcessor(EntryProcessor):
 
     def resize_image(self, p, max_size=MAX_SIZE):
         input_path = os.path.join(self.path, '%s.%s' % (p['identifier'], p["type"]))
+        # Save images organised by year, year-month
+        img_date = datetime.strptime(p['date'],"%Y-%m-%dT%H:%M:%SZ")
+        year_dir = os.path.join(self.path, str(img_date.year))
+        month_dir = os.path.join(year_dir, img_date.strftime('%m-%B'))
+
+        if not os.path.isdir(year_dir):
+            os.mkdir(year_dir)
+            
+        if not os.path.isdir(month_dir):
+            os.mkdir(month_dir)
+
+        output_path = os.path.join(month_dir, '%s.%s' % (p['identifier'], p["type"]))
+
         if os.path.exists(input_path):
             print("Resizing thumbnail image: " + input_path)
             with Image.open(input_path) as img:
                 img.thumbnail(max_size, Image.LANCZOS)
                 if img.mode != 'RGB':
                     img = img.convert('RGB')
-                img.save(input_path, "JPEG")
+                img.save(output_path, "JPEG")
+                os.remove(input_path)
         else:
             print("Error: %s does not exist!" % input_path)
 
@@ -55,6 +69,16 @@ class PhotoEntryProcessor(EntryProcessor):
         self.resize_image(entry)
         local_thumbnail_link = "%s.%s" % (identifier, photo_type)
 
-        photo_basic_info = f"[![]({local_thumbnail_link})]({correct_photo_url})\n"
+        photo_basic_info = f"[![]({local_thumbnail_link})]({correct_photo_url})"
+
+        # If you only need embeddings of media and not any additional info,
+        # you can remove the following section.
+        # You can also add or remove attributes from the JSON.
+        # START of Section.
+        if "date" in entry:
+            photo_basic_info += "`rir:Calendar` {}".format(entry["date"])
+        if "location" in entry:
+            photo_basic_info += " `rir:MapPin` {} tag:photo\n".format(self.get_location_coordinate(entry))
+        # END of Section.
 
         return photo_basic_info
