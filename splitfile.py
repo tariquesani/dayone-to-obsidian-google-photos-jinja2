@@ -7,6 +7,7 @@ import shutil
 import time
 import json
 import re
+import sys 
 
 from processor.AudioEntryProcessor import AudioEntryProcessor
 from processor.EntryProcessor import EntryProcessor
@@ -32,7 +33,7 @@ EntryProcessor.initialize()
 
 # Set this as the location where your Journal.json file is located
 root = Config.get("ROOT")
-icons = False  # Set to true if you are using the Icons Plugin in Obsidian
+icons = True  # Set to true if you are using the Icons Plugin in Obsidian
 
 # name of folder where journal entries will end up
 rootJournalFolder = Config.get("JOURNAL_FOLDER")
@@ -51,7 +52,7 @@ if not os.path.isdir(rootJournalFolder):
 
 if icons:
     print("Icons are on")
-    dateIcon = "`fas:CalendarAlt` "
+    dateIcon = "`rir:Calendar2`"
 else:
     print("Icons are off")
     dateIcon = ""  # make 2nd level heading
@@ -94,8 +95,8 @@ for journalIndex in dayOneJournals:
             coordinates = ''
 
             # Commenting out date in the frontmatter, because it can be found in the file created/last modified time
-            frontmatter = f"---\n" #\
-                          # f"date: {dateCreated}\n"
+            frontmatter = f"---\n" 
+            frontmatter += f"date: {dateCreated}\n"
 
             weather = EntryProcessor.get_weather(entry)
             if len(weather) > 0:
@@ -104,6 +105,8 @@ for journalIndex in dayOneJournals:
             if len(tags) > 0:
                 frontmatter += f"tags: {tags}\n"
 
+            frontmatter += f"locations:\n"
+            frontmatter += f"cssclasses: wide \n"
             frontmatter += "---\n"
 
             if frontmatter != "---\n---\n":
@@ -111,17 +114,18 @@ for journalIndex in dayOneJournals:
 
             # If you want time as entry title, uncomment below.
             # Add date as page header, removing time if it's 12 midday as time obviously not read
-            # if sys.platform == "win32":
-            #     newEntry.append(
-            #         '## %s%s\n' % (dateIcon, localDate.strftime("%A, %#d %B %Y at %#I:%M %p").replace(" at 12:00 PM", "")))
-            # else:
-            # newEntry.append('## %s%s\n' % (
-            #     dateIcon, localDate.strftime("%A, %-d %B %Y at %-I:%M %p").replace(" at 12:00 PM", "")))  # untested
+            if sys.platform == "win32":
+                 newEntry.append(
+                     '## %s%s\n' % (dateIcon, localDate.strftime("%A, %#d %B %Y at %#I:%M %p").replace(" at 12:00 PM", "")))
+            else:
+                 newEntry.append('## %s%s\n' % (
+                 dateIcon, localDate.strftime("%A, %-d %B %Y at %-I:%M %p").replace(" at 12:00 PM", "")))  # untested
 
             # Add body text if it exists (can have the odd blank entry), after some tidying up
             title = EntryProcessor.get_title(entry)
 
-            print("Processing entry: " + title)
+            # print("Processing entry: " + title)
+            print("Processing entry: "+ localDate.strftime('%Y-%m-%d-%A'))
 
             try:
                 if 'text' in entry:
@@ -196,6 +200,7 @@ for journalIndex in dayOneJournals:
             location = EntryProcessor.get_location_coordinate(entry)
             if not location == '':
                 newEntry.append(location)
+                newEntry.append(' tag:note ')
 
             # Add GPS, not all entries have this
             # try:
@@ -204,20 +209,23 @@ for journalIndex in dayOneJournals:
             #     pass
 
             # Save entries organised by year, year-month, year-month-day.md
-            # yearDir = os.path.join(journalFolder, str(createDate.year))
-            # monthDir = os.path.join(yearDir, createDate.strftime('%Y-%m'))
-            #
-            # if not os.path.isdir(yearDir):
-            #     os.mkdir(yearDir)
-            #
-            # if not os.path.isdir(monthDir):
-            #     os.mkdir(monthDir)
+            yearDir = os.path.join(journalFolder, str(createDate.year))
+            monthDir = os.path.join(yearDir, createDate.strftime('%m-%B'))
+            
+            if not os.path.isdir(yearDir):
+                 os.mkdir(yearDir)
+            
+            if not os.path.isdir(monthDir):
+                 os.mkdir(monthDir)
 
-            # title = EntryProcessor.get_title(entry)
+            title = EntryProcessor.get_title(entry)
 
             # Filename format: "title localDate"
             # Target filename to save to. Will be modified if already exists
-            fnNew = os.path.join(journalFolder, "%s.md" % title)
+            # fnNew = os.path.join(journalFolder, "%s.md" % title)
+
+            # Filename format: "localDate"
+            fnNew = os.path.join(monthDir, "%s.md" % (localDate.strftime('%Y-%m-%d-%A')))
 
             # Here is where we handle multiple entries on the same day. Each goes to it's own file
             if os.path.isfile(fnNew):

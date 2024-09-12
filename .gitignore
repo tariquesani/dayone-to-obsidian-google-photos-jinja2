@@ -2,6 +2,6 @@
 .idea/
 config/__pycache__/
 processor/__pycache__/
-venv/
+.venv/*
 secrets/*
 !secrets/
