@@ -1,0 +1,2 @@
+[![[{{ local_thumbnail_link }}]]]({{ correct_photo_url }})
+{% if entry.date %}`rir:Calendar` {{ entry.date|datetime_format(entry.timeZoneName, "%Y-%m-%d %I:%M%p")}} {% endif %}{% if entry.location %}`rir:MapPin` {{ location }} tag:photo{% endif %}
