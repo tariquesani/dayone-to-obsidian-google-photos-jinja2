@@ -16,6 +16,7 @@ from processor.PhotoEntryProcessor import PhotoEntryProcessor
 from processor.VideoEntryProcessor import VideoEntryProcessor
 from processor.VideoEntryProcessor import THUMBNAILS_FOLDER
 from config.config import Config
+from processor.utils import setup_jinja2_env
 
 def rename_media(root, subpath, media_entry, filetype):
     pfn = os.path.join(root, subpath, '%s.%s' % (media_entry['md5'], filetype))
@@ -68,7 +69,6 @@ for journalIndex in dayOneJournals:
     if os.path.isdir(journalFolder):
         print("journalFolder already exists...")
         import pdb
-
         pdb.set_trace()
     os.mkdir(journalFolder)
 
@@ -82,62 +82,51 @@ for journalIndex in dayOneJournals:
         pdf_processor = PdfEntryProcessor()
 
         for entry in data['entries']:
-            newEntry = []
+            new_entry = []
 
             createDate = dateutil.parser.isoparse(entry['creationDate'])
             localDate = createDate.astimezone(
                 pytz.timezone(entry['timeZone']))  # It's natural to use our local date/time as reference point, not UTC
 
+            env = setup_jinja2_env(template_path=os.path.join(os.path.dirname(__file__), './templates'))
+            template = env.get_template("frontmatter_template.md")
+
             # Format the date and time with the weekday
             formatted_datetime = createDate.isoformat() + 'Z'
 
-            dateCreated = formatted_datetime
+            date_created = formatted_datetime
             coordinates = ''
-
-            # Commenting out date in the frontmatter, because it can be found in the file created/last modified time
-            frontmatter = f"---\n" 
-            frontmatter += f"date: {dateCreated}\n"
-
-            weather = EntryProcessor.get_weather(entry)
-            if len(weather) > 0:
-                frontmatter += f"weather: {weather}\n"
-            tags = EntryProcessor.get_tags(entry)
-            if len(tags) > 0:
-                frontmatter += f"tags: {tags}\n"
-
-            frontmatter += f"locations:\n"
-            frontmatter += f"cssclasses: wide \n"
-            frontmatter += "---\n"
+            
+            frontmatter = template.render(date_created=date_created,
+                                          weather=EntryProcessor.get_weather(entry),
+                                          tags=EntryProcessor.get_tags(entry))
 
             if frontmatter != "---\n---\n":
-                newEntry.append(frontmatter)
+                new_entry.append(frontmatter)
 
-            # If you want time as entry title, uncomment below.
-            # Add date as page header, removing time if it's 12 midday as time obviously not read
+            template = env.get_template("content_template.md")
+
             if sys.platform == "win32":
-                 newEntry.append(
-                     '## %s%s\n' % (dateIcon, localDate.strftime("%A, %#d %B %Y at %#I:%M %p").replace(" at 12:00 PM", "")))
+                 heading = '\n## %s%s\n' % (dateIcon, localDate.strftime("%A, %#d %B %Y at %#I:%M %p").replace(" at 12:00 PM", ""))
             else:
-                 newEntry.append('## %s%s\n' % (
-                 dateIcon, localDate.strftime("%A, %-d %B %Y at %-I:%M %p").replace(" at 12:00 PM", "")))  # untested
+                 heading = ('## %s%s\n' % (dateIcon, localDate.strftime("%A, %-d %B %Y at %-I:%M %p").replace(" at 12:00 PM", "")))  # untested
 
             # Add body text if it exists (can have the odd blank entry), after some tidying up
             title = EntryProcessor.get_title(entry)
 
-            # print("Processing entry: " + title)
             print("Processing entry: "+ localDate.strftime('%Y-%m-%d-%A'))
 
             try:
                 if 'text' in entry:
-                    newText = entry['text'].replace("\\", "")
+                    new_text = entry['text'].replace("\\", "")
                 else:
-                    newText = DEFAULT_TEXT
+                    new_text = DEFAULT_TEXT
 
-                newText = newText.replace("\u2028", "\n")
-                newText = newText.replace("\u1C6A", "\n\n")
+                new_text = new_text.replace("\u2028", "\n")
+                new_text = new_text.replace("\u1C6A", "\n\n")
                 special_chars = ["<", ">", "|", "="]
                 for special_char in special_chars:
-                    newText = newText.replace(special_char, "\\" + special_char)
+                    new_text = new_text.replace(special_char, "\\" + special_char)
 
                 if 'photos' in entry:
                     # Correct photo links. First we need to rename them. The filename is the md5 code, not the identifier
@@ -152,9 +141,9 @@ for journalIndex in dayOneJournals:
                     photo_processor.set_GPhotos_title(title)
 
                     # Now to replace the text to point to the file in obsidian
-                    newText = re.sub(r"(\!\[\]\(dayone-moment:\/\/)([A-F0-9]+)(\))",
+                    new_text = re.sub(r"(\!\[\]\(dayone-moment:\/\/)([A-F0-9]+)(\))",
                                      photo_processor.replace_entry_id_with_info,
-                                     newText)
+                                     new_text)
 
                 if 'audios' in entry:
                     audio_list = entry['audios']
@@ -162,8 +151,8 @@ for journalIndex in dayOneJournals:
                         audio_processor.add_entry_to_dict(p)
                         rename_media(root, 'audios', p, "m4a")
 
-                    newText = re.sub(r"(\!\[\]\(dayone-moment:\/audio\/)([A-F0-9]+)(\))",
-                                     audio_processor.replace_entry_id_with_info, newText)
+                    new_text = re.sub(r"(\!\[\]\(dayone-moment:\/audio\/)([A-F0-9]+)(\))",
+                                     audio_processor.replace_entry_id_with_info, new_text)
 
                 if 'pdfAttachments' in entry:
                     pdf_list = entry['pdfAttachments']
@@ -171,8 +160,8 @@ for journalIndex in dayOneJournals:
                         pdf_processor.add_entry_to_dict(p)
                         rename_media(root, 'pdfs', p, p['type'])
 
-                    newText = re.sub(r"(\!\[\]\(dayone-moment:\/pdfAttachment\/)([A-F0-9]+)(\))",
-                                     pdf_processor.replace_entry_id_with_info, newText)
+                    new_text = re.sub(r"(\!\[\]\(dayone-moment:\/pdfAttachment\/)([A-F0-9]+)(\))",
+                                     pdf_processor.replace_entry_id_with_info, new_text)
 
                 if 'videos' in entry:
                     video_list = entry['videos']
@@ -182,33 +171,33 @@ for journalIndex in dayOneJournals:
 
                     video_processor.set_GPhotos_title(title)
 
-                    newText = re.sub(r"(\!\[\]\(dayone-moment:\/video\/)([A-F0-9]+)(\))",
-                                     video_processor.replace_entry_id_with_info, newText)
-
-                newEntry.append(newText)
-
+                    new_text = re.sub(r"(\!\[\]\(dayone-moment:\/video\/)([A-F0-9]+)(\))",
+                                     video_processor.replace_entry_id_with_info, new_text)
+                
             except Exception as e:
                 logging.error(f"Exception: {e}")
                 logging.error(traceback.format_exc())
                 pass
 
             ## Start Metadata section
-
-            newEntry.append('\n\n---\n')
-
-            # Add location
+            # Get location
             location = EntryProcessor.get_location_coordinate(entry)
-            if not location == '':
-                newEntry.append(location)
-                newEntry.append(' tag:note ')
+
+            content = template.render(title=title,
+                                      content=new_text,
+                                      location=location)
+
+            new_entry.append(content)
+
+            ## End Metadata section
 
             # Add GPS, not all entries have this
             # try:
-            #     newEntry.append( '- GPS: [%s, %s](https://www.google.com/maps/search/?api=1&query=%s,%s)\n' % ( entry['location']['latitude'], entry['location']['longitude'], entry['location']['latitude'], entry['location']['longitude'] ) )
+            #     new_entry.append( '- GPS: [%s, %s](https://www.google.com/maps/search/?api=1&query=%s,%s)\n' % ( entry['location']['latitude'], entry['location']['longitude'], entry['location']['latitude'], entry['location']['longitude'] ) )
             # except KeyError:
             #     pass
 
-            # Save entries organised by year, year-month, year-month-day.md
+            # Save entries organised by year, year-month, year-month-day-weekday.md
             yearDir = os.path.join(journalFolder, str(createDate.year))
             monthDir = os.path.join(yearDir, createDate.strftime('%m-%B'))
             
@@ -219,10 +208,6 @@ for journalIndex in dayOneJournals:
                  os.mkdir(monthDir)
 
             title = EntryProcessor.get_title(entry)
-
-            # Filename format: "title localDate"
-            # Target filename to save to. Will be modified if already exists
-            # fnNew = os.path.join(journalFolder, "%s.md" % title)
 
             # Filename format: "localDate"
             fnNew = os.path.join(monthDir, "%s.md" % (localDate.strftime('%Y-%m-%d-%A')))
@@ -237,7 +222,7 @@ for journalIndex in dayOneJournals:
                     fnNew = os.path.join(journalFolder, "%s %s.md" % (title, chr(index)))
 
             with open(fnNew, 'w', encoding='utf-8') as f:
-                for line in newEntry:
+                for line in new_entry:
                     f.write(line)
 
             # Set created date and last modified date to entry's date
