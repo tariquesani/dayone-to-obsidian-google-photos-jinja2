@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 import os
 from PIL import Image
+from . import utils # Import from utils.py
 
 from processor.EntryProcessor import EntryProcessor, MAX_SIZE, saved_uploads, update_saved_uploads
 
@@ -39,11 +40,16 @@ class PhotoEntryProcessor(EntryProcessor):
     def get_entry_info(self, entry):
         identifier = entry["identifier"]
         photo_type = entry["type"]
+
+        if 'timeZoneName' not in entry or not entry['timeZoneName']:
+            entry['timeZoneName'] = 'Asia/Kolkata'
+
         if "%s.%s" % (identifier, photo_type) in saved_uploads:
             correct_photo_url = saved_uploads["%s.%s" % (identifier, photo_type)]
         else:
             possible_photos = []
             correct_photo_url = None
+
             if "date" in entry:
                 # search if the photo already exists in Google Photos
                 found_photos = self.get_GPhotos(entry["date"], "image")
@@ -68,16 +74,19 @@ class PhotoEntryProcessor(EntryProcessor):
         self.resize_image(entry)
         local_thumbnail_link = "%s.%s" % (identifier, photo_type)
 
-        photo_basic_info = f"[![[{local_thumbnail_link}]]]({correct_photo_url})"
+        dirname = os.path.dirname(__file__)
+        template_dir = os.path.join(dirname, '../templates')
 
-        # If you only need embeddings of media and not any additional info,
-        # you can remove the following section.
-        # You can also add or remove attributes from the JSON.
-        # START of Section.
-        if "date" in entry:
-            photo_basic_info += "`rir:Calendar` {}".format(entry["date"])
-        if "location" in entry:
-            photo_basic_info += " `rir:MapPin` {} tag:photo\n".format(self.get_location_coordinate(entry))
-        # END of Section.
+        # Use the common Jinja2 environment setup from utils.py
+        env = utils.setup_jinja2_env(template_path = template_dir)
+        template = env.get_template("photo_template.md")
+
+        # Render the template with the required data
+        photo_basic_info = template.render(
+            local_thumbnail_link=local_thumbnail_link,
+            correct_photo_url=correct_photo_url,
+            entry=entry,
+            location=self.get_location_coordinate(entry) if "location" in entry else None
+        )
 
         return photo_basic_info
