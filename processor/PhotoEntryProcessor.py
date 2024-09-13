@@ -12,6 +12,17 @@ class PhotoEntryProcessor(EntryProcessor):
         super().__init__()
         
     def resize_image(self, p, max_size=MAX_SIZE):
+        """
+        Resizes an image to a specified maximum size and saves it in a directory 
+        organized by year and month.
+
+        Args:
+            p (dict): A dictionary containing the image's identifier, type, and date.
+            max_size (tuple, optional): The maximum size of the resized image. Defaults to MAX_SIZE.
+
+        Returns:
+            None
+        """
         input_path = os.path.join(self.path, '%s.%s' % (p['identifier'], p["type"]))
         # Save images organised by year, year-month
         img_date = datetime.strptime(p['date'],"%Y-%m-%dT%H:%M:%SZ")
@@ -38,6 +49,15 @@ class PhotoEntryProcessor(EntryProcessor):
             print("Error: %s does not exist!" % input_path)
 
     def get_entry_info(self, entry):
+        """
+        Retrieves and processes the information of a photo entry.
+
+        Parameters:
+            entry (dict): A dictionary containing the photo's metadata.
+
+        Returns:
+            str: The rendered photo basic information in Markdown format.
+        """
         identifier = entry["identifier"]
         photo_type = entry["type"]
 
