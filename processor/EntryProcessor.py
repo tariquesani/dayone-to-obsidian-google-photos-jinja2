@@ -87,7 +87,7 @@ class EntryProcessor:
 
     def replace_entry_id_with_info(self, term):
         return self.get_entry_info(self.media_dict[term.group(2)])
-
+    
     def get_entry_info(self, entry):
         return str(entry)
 
@@ -139,7 +139,7 @@ class EntryProcessor:
 
         nextPageToken = None
         idx = 0
-        media_items = []
+        mediaItems = []
         while True:
             idx += 1
             response = authed_session.post(
@@ -168,15 +168,16 @@ class EntryProcessor:
 
             response_json = response.json()
             if len(response_json) != 0:
-                for media in response_json["mediaItems"]:
-                    if media["mimeType"].startswith(mime_prefix):
-                        media_items.append(media)
+                if "mediaItems" in response_json:
+                    for media in response_json["mediaItems"]:
+                        if media["mimeType"].startswith(mime_prefix):
+                            mediaItems.append(media)
 
             if not "nextPageToken" in response_json:
                 break
 
             nextPageToken = response_json["nextPageToken"]
-        return media_items
+        return mediaItems
 
     @staticmethod
     def get_location(entry: dict):

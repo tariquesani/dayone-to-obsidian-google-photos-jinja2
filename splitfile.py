@@ -116,7 +116,9 @@ for journal_index in dayone_journals:
                  heading = (' %s\n' % (local_date.strftime("%A, %-d %B %Y at %-I:%M %p").replace(" at 12:00 PM", "")))  # untested
 
             # Add body text if it exists (can have the odd blank entry), after some tidying up
-            title = EntryProcessor.get_title(entry)
+            # title = EntryProcessor.get_title(entry)
+
+            title = local_date.strftime('%Y-%m-%d-%A')
 
             print("Processing entry: "+ local_date.strftime('%Y-%m-%d-%A'))
 
@@ -138,6 +140,7 @@ for journal_index in dayone_journals:
                     # through as then, they are all renamed.
                     # Assuming all jpeg extensions.
                     photo_list = entry['photos']
+
                     for p in photo_list:
                         photo_processor.add_entry_to_dict(p)
                         rename_media(root, 'photos', p, p['type'])
@@ -145,6 +148,19 @@ for journal_index in dayone_journals:
                     photo_processor.set_GPhotos_title(title)
 
                     # Now to replace the text to point to the file in obsidian
+                    # This regular expression will replace any references to DayOne photos with the correct relative
+                    # link to the photo in Obsidian. The regular expression is as follows:
+                    #
+                    # (\!\[\]\(dayone-moment:\/\/)([A-F0-9]+)(\))
+                    #
+                    # - `![]` matches the Markdown image syntax
+                    # - `(dayone-moment:\/\/)` matches the string "dayone-moment://"
+                    # - `([A-F0-9]+)` matches one or more hexadecimal characters (the identifier of the photo)
+                    # - `(\))` matches the closing bracket of the Markdown image syntax
+                    #
+                    # Once a match is found, it is replaced with the result of calling
+                    # `photo_processor.replace_entry_id_with_info` with the match object as an argument, which returns
+                    # the correct relative link to the photo in Obsidian.
                     new_text = re.sub(r"(\!\[\]\(dayone-moment:\/\/)([A-F0-9]+)(\))",
                                      photo_processor.replace_entry_id_with_info,
                                      new_text)
@@ -211,7 +227,9 @@ for journal_index in dayone_journals:
             if not os.path.isdir(month_dir):
                  os.mkdir(month_dir)
 
-            title = EntryProcessor.get_title(entry)
+            #title = EntryProcessor.get_title(entry)
+
+            title = local_date.strftime('%Y-%m-%d-%A')
 
             # Filename format: "localDate"
             new_file_name = os.path.join(month_dir, "%s.md" % (local_date.strftime('%Y-%m-%d-%A')))

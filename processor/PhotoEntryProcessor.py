@@ -44,7 +44,7 @@ class PhotoEntryProcessor(EntryProcessor):
                 if img.mode != 'RGB':
                     img = img.convert('RGB')
                 img.save(output_path, "JPEG")
-                os.remove(input_path)
+                # os.remove(input_path)
         else:
             print("Error: %s does not exist!" % input_path)
 
