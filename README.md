@@ -10,11 +10,16 @@ Convert a [Day One](https://dayoneapp.com/) JSON export into individual entries 
 * Includes datetime, weather, and tags in the frontmatter.
 * Supports additional tags to display in Obsidian separate from other note tags. (default = From/DayOne)
 
-## Additional features from me
+## Additional features from [@ezratock](https://github.com/ezratock/dayone-to-obsidian-Google-Photos)
 * Photos and videos will be uploaded to Google Photos, and just the external link will be kept in your notes as per the Google Photos plugin.
 * If a photo or video already in Google Photos seems to match the DayOne export, the script prompts the user to confirm the match instead of reuploading the file
 * Supports multiple DayOne journals (DayOne Premium)
 * Allows renaming untitled DayOne entries with user input
+
+## Additional features from [@tariquesani]
+* Refactored to use Jinja2 templates, currently only the main entry and photos are converted. I don't have DayOne premium
+* Entries now stored as YYYY-MM-DD-Weekday.md in YYYY/MM-MMMM/ folder structure
+* Photos, after thumbnail creation stored in YYYY/MM-MMMM/ folder structure
 
 ## Example 
 ### Entry in Day One:
