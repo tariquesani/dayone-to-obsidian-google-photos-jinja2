@@ -16,7 +16,7 @@ Convert a [Day One](https://dayoneapp.com/) JSON export into individual entries 
 * Supports multiple DayOne journals (DayOne Premium)
 * Allows renaming untitled DayOne entries with user input
 
-## Additional features from [@tariquesani]
+## Additional features from [@tariquesani](https://github.com/tariquesani/dayone-to-obsidian-google-photos-jinja2/tree/jinja2)
 * Refactored to use Jinja2 templates, currently only the main entry and photos are converted. I don't have DayOne premium
 * Entries now stored as YYYY-MM-DD-Weekday.md in YYYY/MM-MMMM/ folder structure
 * Photos, after thumbnail creation stored in YYYY/MM-MMMM/ folder structure
