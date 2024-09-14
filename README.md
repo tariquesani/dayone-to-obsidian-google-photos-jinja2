@@ -1,4 +1,4 @@
-# dayone-to-obsidian-Google-Photos
+# dayone-to-obsidian-Google-Photos-Jinja2
 Convert a [Day One](https://dayoneapp.com/) JSON export into individual entries for [Obsidian](https://obsidian.md) with the [Google Photos plugin](https://forum.obsidian.md/t/google-photos-integration-for-obsidian/51062) installed. Each entry is created as a separate page. 
 
 ## Additional features from [@LucyDYu](https://github.com/LucyDYu/dayone-to-obsidian)
