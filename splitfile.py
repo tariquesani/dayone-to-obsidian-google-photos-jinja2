@@ -71,7 +71,7 @@ for journal_index in dayone_journals:
     dash = "\n========================================"
     print(dash + "\nBegin processing " + journal_index + dash)
     if os.path.isdir(journal_folder):
-        print("journalFolder already exists...")
+        print("journal Folder already exists...")
         import pdb
         pdb.set_trace()
     os.mkdir(journal_folder)
@@ -202,37 +202,37 @@ for journal_index in dayone_journals:
             #     pass
 
             # Save entries organised by year, year-month, year-month-day-weekday.md
-            yearDir = os.path.join(journal_folder, str(create_date.year))
-            monthDir = os.path.join(yearDir, create_date.strftime('%m-%B'))
+            year_dir = os.path.join(journal_folder, str(create_date.year))
+            month_dir = os.path.join(year_dir, create_date.strftime('%m-%B'))
             
-            if not os.path.isdir(yearDir):
-                 os.mkdir(yearDir)
+            if not os.path.isdir(year_dir):
+                 os.mkdir(year_dir)
             
-            if not os.path.isdir(monthDir):
-                 os.mkdir(monthDir)
+            if not os.path.isdir(month_dir):
+                 os.mkdir(month_dir)
 
             title = EntryProcessor.get_title(entry)
 
             # Filename format: "localDate"
-            fnNew = os.path.join(monthDir, "%s.md" % (local_date.strftime('%Y-%m-%d-%A')))
+            new_file_name = os.path.join(month_dir, "%s.md" % (local_date.strftime('%Y-%m-%d-%A')))
 
             # Here is where we handle multiple entries on the same day. Each goes to it's own file
-            if os.path.isfile(fnNew):
+            if os.path.isfile(new_file_name):
                 # File exists, need to find the next in sequence and append alpha character marker
                 index = 97  # ASCII a
-                fnNew = os.path.join(journal_folder, "%s %s.md" % (title, chr(index)))
-                while os.path.isfile(fnNew):
+                new_file_name = os.path.join(journal_folder, "%s %s.md" % (title, chr(index)))
+                while os.path.isfile(new_file_name):
                     index += 1
-                    fnNew = os.path.join(journal_folder, "%s %s.md" % (title, chr(index)))
+                    new_file_name = os.path.join(journal_folder, "%s %s.md" % (title, chr(index)))
 
-            with open(fnNew, 'w', encoding='utf-8') as f:
+            with open(new_file_name, 'w', encoding='utf-8') as f:
                 for line in new_entry:
                     f.write(line)
 
             # Set created date and last modified date to entry's date
-            if (os.path.exists(fnNew)):
+            if (os.path.exists(new_file_name)):
                 date_epoch = create_date.timestamp()
-                os.utime(fnNew, (date_epoch, date_epoch))
+                os.utime(new_file_name, (date_epoch, date_epoch))
             else:
                 print("Write to file failed.")
 
