@@ -233,21 +233,43 @@ for journal_index in dayone_journals:
             if not os.path.isdir(month_dir):
                  os.mkdir(month_dir)
 
-            #title = EntryProcessor.get_title(entry)
-
             title = local_date.strftime('%Y-%m-%d-%A')
 
             # Filename format: "localDate"
-            new_file_name = os.path.join(month_dir, "%s.md" % (local_date.strftime('%Y-%m-%d-%A')))
+            index = 97  # ASCII 'a'
+            new_file_name = os.path.join(month_dir, f"{title}.md")
+            entry_date = create_date.timestamp()  # Get entry date as timestamp
 
             # Here is where we handle multiple entries on the same day. Each goes to it's own file
-            if os.path.isfile(new_file_name):
-                # File exists, need to find the next in sequence and append alpha character marker
-                index = 97  # ASCII a
-                new_file_name = os.path.join(journal_folder, "%s %s.md" % (title, chr(index)))
-                while os.path.isfile(new_file_name):
-                    index += 1
-                    new_file_name = os.path.join(journal_folder, "%s %s.md" % (title, chr(index)))
+            # Compare the create_date.timestamp() with the createed date of the file to see if it is the same. 
+            # If it is the same then the file exists, need to find the next in sequence and append alpha character
+            # Loop until you find a file that either doesn't exist or has a different date
+            while os.path.isfile(new_file_name):
+                file_stat = os.stat(new_file_name)
+                file_date = file_stat.st_mtime  # Get the modification time of the file
+
+                if entry_date != file_date:
+                    # Append the index to the filename before breaking
+                    new_file_name = os.path.join(month_dir, f"{title} {chr(index)}.md")
+                    break
+
+                # Otherwise, continue searching for a new filename by incrementing the index
+                index += 1
+                new_file_name = os.path.join(month_dir, f"{title} {chr(index)}.md")
+
+
+            # if os.path.isfile(new_file_name):
+
+            #     file_stat = os.stat(new_file_name)
+            #     file_date = file_stat.st_mtime
+            #     print(f"File date: {file_date}") 
+            #     print(f"Create date: {create_date.timestamp()}")
+
+            #     index = 97  # ASCII a
+            #     new_file_name = os.path.join(month_dir, "%s %s.md" % (title, chr(index)))
+            #     while os.path.isfile(new_file_name):
+            #         index += 1
+            #         new_file_name = os.path.join(month_dir, "%s %s.md" % (title, chr(index)))
 
             with open(new_file_name, 'w', encoding='utf-8') as f:
                 for line in new_entry:
