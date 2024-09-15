@@ -36,3 +36,6 @@ GOOGLE_PHOTOS_CREDS: 'C:\Users\ADMIN\Projects\dayone-to-obsidian-Google-Photos\s
 # journal's date to search
 GOOGLE_PHOTOS_SEARCH_WINDOW: 3
 
+# Force uplading photos to Google Photos even if they already exist.
+# Good for unattended uploads but will lead to duplicates
+FORCE_UPLOAD: false

@@ -74,6 +74,7 @@ class EntryProcessor:
         cls.additional_tags = Config.get("ADDITIONAL_TAGS", [])
         cls.tag_prefix = Config.get("TAG_PREFIX", "")
         cls.default_filename = Config.get("DEFAULT_FILENAME", "")
+        cls.force_upload = Config.get("FORCE_UPLOAD", False)
 
     def __init__(self):
         self.media_dict = {}  # Initialize dict in the constructor

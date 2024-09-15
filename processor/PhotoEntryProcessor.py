@@ -71,8 +71,13 @@ class PhotoEntryProcessor(EntryProcessor):
             correct_photo_url = None
 
             if "date" in entry:
-                # search if the photo already exists in Google Photos
-                found_photos = self.get_GPhotos(entry["date"], "image")
+                # if force_upload is False in config.yaml
+                if not self.force_upload:
+                    # search if the photo already exists in Google Photos
+                    found_photos = self.get_GPhotos(entry["date"], "image")
+                else:
+                    found_photos = []
+
                 for photo in found_photos:
                     if int(photo["mediaMetadata"]["width"]) == entry["width"] and int(photo["mediaMetadata"]["height"]) == entry["height"]:
                         possible_photos.append(photo)
