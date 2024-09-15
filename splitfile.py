@@ -8,6 +8,7 @@ import time
 import json
 import re
 import sys 
+import logging_config
 
 from processor.AudioEntryProcessor import AudioEntryProcessor
 from processor.EntryProcessor import EntryProcessor
@@ -17,6 +18,9 @@ from processor.VideoEntryProcessor import VideoEntryProcessor
 from processor.VideoEntryProcessor import THUMBNAILS_FOLDER
 from config.config import Config
 from processor.utils import setup_jinja2_env
+
+# Set up logging
+logging_config.setup_logging()
 
 def rename_media(root, subpath, media_entry, filetype):
     """
@@ -40,6 +44,7 @@ def rename_media(root, subpath, media_entry, filetype):
 
 DEFAULT_TEXT = Config.get("DEFAULT_TEXT", "")
 GOOGLE_PHOTOS_CREDS = Config.get("GOOGLE_PHOTOS_CREDS")
+FORCE_REGENERATE = Config.get("FORCE_REGENERATE", True)
 
 # Initialize the EntryProcessor class variables
 EntryProcessor.initialize()
@@ -50,12 +55,13 @@ root = Config.get("ROOT")
 # name of folder where journal entries will end up
 root_journal_folder = Config.get("JOURNAL_FOLDER")
 
-# Clean out existing journal folder, otherwise each run creates new files
-if os.path.isdir(root_journal_folder):
-    print("Deleting existing folder: %s" % root_journal_folder)
-    shutil.rmtree(root_journal_folder)
-# Give time for folder deletion to complete. Only a problem if you have the folder open when trying to run the script
-time.sleep(2)
+if FORCE_REGENERATE is True:
+    # Clean out existing journal folder, otherwise each run creates new files
+    if os.path.isdir(root_journal_folder):
+        print("Deleting existing folder: %s" % root_journal_folder)
+        shutil.rmtree(root_journal_folder)
+    # Give time for folder deletion to complete. Only a problem if you have the folder open when trying to run the script
+    time.sleep(2)
 
 if not os.path.isdir(root_journal_folder):
     print("Creating root journal folder: %s" % root_journal_folder)
@@ -92,6 +98,13 @@ for journal_index in dayone_journals:
             local_date = create_date.astimezone(
                 pytz.timezone(entry['timeZone']))  # It's natural to use our local date/time as reference point, not UTC
 
+            # Add body text if it exists (can have the odd blank entry), after some tidying up
+            # title = EntryProcessor.get_title(entry)
+
+            title = local_date.strftime('%Y-%m-%d-%A')
+
+            print("Processing entry: "+ title )
+
             env = setup_jinja2_env(template_path=os.path.join(os.path.dirname(__file__), './templates'))
             template = env.get_template("frontmatter_template.md")
 
@@ -114,13 +127,6 @@ for journal_index in dayone_journals:
                  heading = ' %s\n' % (local_date.strftime("%A, %#d %B %Y at %#I:%M %p").replace(" at 12:00 PM", ""))
             else:
                  heading = (' %s\n' % (local_date.strftime("%A, %-d %B %Y at %-I:%M %p").replace(" at 12:00 PM", "")))  # untested
-
-            # Add body text if it exists (can have the odd blank entry), after some tidying up
-            # title = EntryProcessor.get_title(entry)
-
-            title = local_date.strftime('%Y-%m-%d-%A')
-
-            print("Processing entry: "+ local_date.strftime('%Y-%m-%d-%A'))
 
             try:
                 if 'text' in entry:

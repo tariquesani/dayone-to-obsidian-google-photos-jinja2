@@ -38,4 +38,8 @@ GOOGLE_PHOTOS_SEARCH_WINDOW: 3
 
 # Force uplading photos to Google Photos even if they already exist.
 # Good for unattended uploads but will lead to duplicates
-FORCE_UPLOAD: false
+FORCE_UPLOAD: False
+
+# Set this to true if you want all files to be regenerated
+# TODO implement this feature later. For now ensure it is always true
+FORCE_REGENERATE: True 

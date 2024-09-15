@@ -5,3 +5,5 @@ processor/__pycache__/
 .venv/*
 secrets/*
 !secrets/
+app.log
+__pycache__/logging_config.cpython-312.pyc
