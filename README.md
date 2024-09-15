@@ -14,12 +14,14 @@ Convert a [Day One](https://dayoneapp.com/) JSON export into individual entries 
 * Photos and videos will be uploaded to Google Photos, and just the external link will be kept in your notes as per the Google Photos plugin.
 * If a photo or video already in Google Photos seems to match the DayOne export, the script prompts the user to confirm the match instead of reuploading the file
 * Supports multiple DayOne journals (DayOne Premium)
-* Allows renaming untitled DayOne entries with user input
+* ~~Allows renaming untitled DayOne entries with user input~~ Removed, see below
 
 ## Additional features from [@tariquesani](https://github.com/tariquesani/dayone-to-obsidian-google-photos-jinja2/tree/jinja2)
 * Refactored to use Jinja2 templates, currently only the main entry and photos are converted. I don't have DayOne premium
 * Entries now stored as YYYY-MM-DD-Weekday.md in YYYY/MM-MMMM/ folder structure
-* Photos, after thumbnail creation stored in YYYY/MM-MMMM/ folder structure
+* Photos, after thumbnail creation stored in YYYY/MM-MMMM/ folder structure as well 
+* Logging of errors to app.log for easier troubleshooting
+* Force upload every photo to Google Photos via config.yaml setting, because at times you need to 
 
 ## Example 
 ### Entry in Day One:

@@ -6,4 +6,4 @@ processor/__pycache__/
 secrets/*
 !secrets/
 app.log
-__pycache__/logging_config.cpython-312.pyc
+__pycache__/*
