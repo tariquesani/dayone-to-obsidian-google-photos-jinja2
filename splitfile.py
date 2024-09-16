@@ -217,12 +217,6 @@ for journal_index in dayone_journals:
 
             ## End Metadata section
 
-            # Add GPS, not all entries have this
-            # try:
-            #     new_entry.append( '- GPS: [%s, %s](https://www.google.com/maps/search/?api=1&query=%s,%s)\n' % ( entry['location']['latitude'], entry['location']['longitude'], entry['location']['latitude'], entry['location']['longitude'] ) )
-            # except KeyError:
-            #     pass
-
             # Save entries organised by year, year-month, year-month-day-weekday.md
             year_dir = os.path.join(journal_folder, str(create_date.year))
             month_dir = os.path.join(year_dir, create_date.strftime('%m-%B'))
@@ -257,20 +251,7 @@ for journal_index in dayone_journals:
                 index += 1
                 new_file_name = os.path.join(month_dir, f"{title} {chr(index)}.md")
 
-
-            # if os.path.isfile(new_file_name):
-
-            #     file_stat = os.stat(new_file_name)
-            #     file_date = file_stat.st_mtime
-            #     print(f"File date: {file_date}") 
-            #     print(f"Create date: {create_date.timestamp()}")
-
-            #     index = 97  # ASCII a
-            #     new_file_name = os.path.join(month_dir, "%s %s.md" % (title, chr(index)))
-            #     while os.path.isfile(new_file_name):
-            #         index += 1
-            #         new_file_name = os.path.join(month_dir, "%s %s.md" % (title, chr(index)))
-
+            # Write the new entry to the new file
             with open(new_file_name, 'w', encoding='utf-8') as f:
                 for line in new_entry:
                     f.write(line)
