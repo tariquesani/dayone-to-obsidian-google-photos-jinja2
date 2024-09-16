@@ -22,6 +22,7 @@ Convert a [Day One](https://dayoneapp.com/) JSON export into individual entries 
 * Photos, after thumbnail creation stored in YYYY/MM-MMMM/ folder structure as well 
 * Logging of errors to app.log for easier troubleshooting
 * Force upload every photo to Google Photos via config.yaml setting, because at times you need to 
+* Cleaner.py to detect unuploaded photos
 
 ## Example 
 ### Entry in Day One:
