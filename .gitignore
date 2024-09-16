@@ -7,3 +7,4 @@ secrets/*
 !secrets/
 app.log
 __pycache__/*
+config.yaml
