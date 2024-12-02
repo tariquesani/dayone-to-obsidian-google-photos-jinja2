@@ -95,12 +95,14 @@ for journal_index in dayone_journals:
             new_entry = []
 
             create_date = dateutil.parser.isoparse(entry['creationDate'])
-            local_date = create_date.astimezone(
-                pytz.timezone(entry['timeZone']))  # It's natural to use our local date/time as reference point, not UTC
 
+            # It's natural to use our local date/time as reference point, not UTC
+            local_date = create_date.astimezone(pytz.timezone(entry['timeZone']))  
+            
             # Add body text if it exists (can have the odd blank entry), after some tidying up
             # title = EntryProcessor.get_title(entry)
 
+            # Format the date and time with the weekday and set as title 
             title = local_date.strftime('%Y-%m-%d-%A')
 
             print("Processing entry: "+ title )
@@ -201,7 +203,7 @@ for journal_index in dayone_journals:
                                      video_processor.replace_entry_id_with_info, new_text)
                 
             except Exception as e:
-                logging.error(f"Exception: {e}")
+                logging.error(f"Exception: {e}", f"\nTitle: {title}")
                 logging.error(traceback.format_exc())
                 pass
 
