@@ -42,15 +42,25 @@ def update_saved_uploads():
     with open(saved_uploads_path, 'w') as f:
         json.dump(saved_uploads, f)
 
+
 if not os.path.exists('secrets/'):
     os.mkdir('secrets')
 
 if os.path.exists('secrets/savedToken.json'):
-    creds = Credentials.from_authorized_user_file('secrets/savedToken.json', SCOPES)
+    creds = Credentials.from_authorized_user_file(
+        'secrets/savedToken.json', SCOPES)
+
+print(creds.token_state)
 
 if not creds or not creds.valid:
     if creds and creds.expired and creds.refresh_token:
-        creds.refresh(Request())
+        try:
+            creds.refresh(Request())
+        except Exception as e:
+            print(f"Error refreshing credentials: {e}")
+            flow = InstalledAppFlow.from_client_secrets_file(
+                Config.get("GOOGLE_PHOTOS_CREDS"), SCOPES)
+            creds = flow.run_local_server()
     else:
         flow = InstalledAppFlow.from_client_secrets_file(
             Config.get("GOOGLE_PHOTOS_CREDS"), SCOPES)
@@ -82,13 +92,14 @@ class EntryProcessor:
     def add_entry_to_dict(self, media):
         identifier = media["identifier"]
         if identifier in self.media_dict:
-            raise ValueError(f"Identifier {identifier} already exists in the dictionary.")
+            raise ValueError(
+                f"Identifier {identifier} already exists in the dictionary.")
         else:
             self.media_dict[identifier] = media
 
     def replace_entry_id_with_info(self, term):
         return self.get_entry_info(self.media_dict[term.group(2)])
-    
+
     def get_entry_info(self, entry):
         return str(entry)
 
@@ -123,7 +134,8 @@ class EntryProcessor:
                         }]
                     }
                 )
-                return_url = response.json()['newMediaItemResults'][0]['mediaItem']['productUrl']
+                return_url = response.json(
+                )['newMediaItemResults'][0]['mediaItem']['productUrl']
                 print("New URL: " + return_url)
                 return return_url
         else:
@@ -199,7 +211,8 @@ class EntryProcessor:
     @staticmethod
     def get_coordinates(entry: dict):
         if 'location' in entry:
-            coordinates = str(entry['location']['latitude']) + ',' + str(entry['location']['longitude'])
+            coordinates = str(entry['location']['latitude']) + \
+                ',' + str(entry['location']['longitude'])
             return coordinates
 
     @staticmethod
@@ -242,7 +255,8 @@ class EntryProcessor:
             for t in entry['tags']:
                 if len(t) == 0:
                     continue
-                tag_list.append("%s%s" % (EntryProcessor.tag_prefix, t.replace(' ', '-').replace('---', '-')))
+                tag_list.append("%s%s" % (EntryProcessor.tag_prefix,
+                                t.replace(' ', '-').replace('---', '-')))
             if entry['starred']:
                 tag_list.append("%sstarred" % EntryProcessor.tag_prefix)
 
@@ -266,7 +280,8 @@ class EntryProcessor:
         for t_line in lines:
             if len(t_line) > 0 and not re.match(r"!\[\]", t_line):
                 entry_title = t_line
-                entry['text'] = re.sub(re.escape(entry_title) + '\n', '', entry['text'], count=1)
+                entry['text'] = re.sub(
+                    re.escape(entry_title) + '\n', '', entry['text'], count=1)
                 break
         if entry_title is None or len(entry_title) == 0:
             entry_title = EntryProcessor.default_filename
@@ -277,7 +292,8 @@ class EntryProcessor:
                 entry_title = saved_input[entry_title]
             else:
                 key = entry_title
-                new_title = str(input("Title not found in: %s\nEnter new title (or leave blank to use %s): " % (entry_title.strip(), entry_title.strip())))
+                new_title = str(input("Title not found in: %s\nEnter new title (or leave blank to use %s): " % (
+                    entry_title.strip(), entry_title.strip())))
                 entry_title = entry_title if new_title == "" else new_title
                 saved_input[key] = entry_title
                 update_saved_input()
