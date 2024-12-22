@@ -25,6 +25,8 @@ class PhotoEntryProcessor(EntryProcessor):
         """
         input_path = os.path.join(self.path, '%s.%s' % (p['identifier'], p["type"]))
         # Save images organised by year, year-month
+        if not 'date' in p:
+            p['date'] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         img_date = datetime.strptime(p['date'],"%Y-%m-%dT%H:%M:%SZ")
         year_dir = os.path.join(self.path, str(img_date.year))
         month_dir = os.path.join(year_dir, img_date.strftime('%m-%B'))
