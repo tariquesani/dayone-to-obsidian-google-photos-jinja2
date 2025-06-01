@@ -85,6 +85,7 @@ class EntryProcessor:
         cls.tag_prefix = Config.get("TAG_PREFIX", "")
         cls.default_filename = Config.get("DEFAULT_FILENAME", "")
         cls.force_upload = Config.get("FORCE_UPLOAD", False)
+        cls.upload_to_google_photos = Config.get("UPLOAD_TO_GOOGLE_PHOTOS", True)
 
     def __init__(self):
         self.media_dict = {}  # Initialize dict in the constructor
@@ -104,6 +105,17 @@ class EntryProcessor:
         return str(entry)
 
     def upload_to_GPhotos(self, file_location, file_name, date, title):
+        # Check if uploading to Google Photos is disabled in config
+        if hasattr(self, 'upload_to_google_photos'):
+            upload_enabled = self.upload_to_google_photos
+        elif hasattr(EntryProcessor, 'upload_to_google_photos'):
+            upload_enabled = EntryProcessor.upload_to_google_photos
+        else:
+            upload_enabled = True
+        if not upload_enabled:
+            print(f"UPLOAD_TO_GOOGLE_PHOTOS is False, skipping upload for {file_name}.")
+            return "://"
+
         file_path = os.path.join(file_location, file_name)
         if os.path.exists(file_path):
             try:
@@ -134,8 +146,10 @@ class EntryProcessor:
                         }]
                     }
                 )
-                return_url = response.json(
-                )['newMediaItemResults'][0]['mediaItem']['productUrl']
+                try:
+                    return_url = response.json()['newMediaItemResults'][0]['mediaItem']['productUrl']
+                except (KeyError, IndexError, TypeError):
+                    return_url = "://"
                 print("New URL: " + return_url)
                 return return_url
         else:
